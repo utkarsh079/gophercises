@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"encoding/csv"
 	"flag"
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
 type question struct {
@@ -29,24 +31,36 @@ func ReadCsv(filename string) ([][]string, error) {
 	return allQuestions, nil
 }
 
-func RunQuiz(questionList []question) {
+func RunQuiz(questionList []question, quizTime *time.Timer) int {
 	correct := 0
 	fmt.Println("The quiz is starting")
 	for i, question := range questionList {
-		var ans string
-		fmt.Printf("Question number #%d: %s\n", i+1, question.q)
-		fmt.Scanf("%s", &ans)
-		if question.a == strings.TrimSpace(ans) {
-			correct++
+		ansChannel := make(chan string)
+		fmt.Printf("Question number #%d: %s = ", i+1, question.q)
+		go func() {
+			reader := bufio.NewReader(os.Stdin)
+			ans, _ := reader.ReadString('\n')
+			ansChannel <- strings.TrimSpace(ans)
+		}()
+
+		select {
+		case <-quizTime.C:
+			fmt.Printf("\nTime is over")
+			return correct
+		case answer := <-ansChannel:
+			if question.a == answer {
+				correct++
+			}
 		}
 	}
-	fmt.Printf("You result is %d out of %d\n", correct, len(questionList))
+	return correct
 }
 
 func main() {
-	filename := flag.String("csv", "quiz.csv", "Name of the CSV")
+	csvFileName := flag.String("csv", "quiz.csv", "Name of the CSV")
+	timeOut := flag.Int("timer", 20, "Total time for the quiz in seconds")
 	flag.Parse()
-	allQuestions, err := ReadCsv(*filename)
+	allQuestions, err := ReadCsv(*csvFileName)
 	if err != nil {
 		fmt.Print("unable to read csv file")
 	}
@@ -58,5 +72,9 @@ func main() {
 		questionList[i].a = line[1]
 	}
 
-	RunQuiz(questionList)
+	quizTimer := time.NewTimer(time.Duration(*timeOut) * time.Second)
+	defer quizTimer.Stop()
+
+	correct := RunQuiz(questionList, quizTimer)
+	fmt.Printf("\nYou result is %d out of %d\n", correct, len(questionList))
 }
