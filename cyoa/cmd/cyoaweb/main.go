@@ -16,11 +16,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer f.Close()
 
 	var story cyoa.Story
 	d := json.NewDecoder(f)
-	if err := d.Decode(cyoa.Story); err != nil {
+	if err := d.Decode(&story); err != nil {
 		panic(err)
 	}
-	fmt.Printf("%+v", story)
+	fmt.Printf("%+v\n", story)
 }

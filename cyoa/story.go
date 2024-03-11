@@ -1,6 +1,6 @@
 package cyoa
 
-type story map[string]Chapter
+type Story map[string]Chapter
 
 type Chapter struct {
 	Title     string   `json:"title"`
