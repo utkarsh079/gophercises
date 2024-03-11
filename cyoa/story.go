@@ -1,5 +1,10 @@
 package cyoa
 
+import (
+	"encoding/json"
+	"io"
+)
+
 type Story map[string]Chapter
 
 type Chapter struct {
@@ -13,36 +18,11 @@ type Option struct {
 	Chapter string `json:"arc"`
 }
 
-// func main() {
-// 	chapters, err := ParseJson()
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	introArc := chapters["intro"]
-// 	for _, v := range introArc.Options {
-// 		fmt.Println(v.Text)
-// 		fmt.Println(v.Chapter)
-// 	}
-// }
-
-// func ParseJson() (map[string]Chapter, error) {
-// 	var result map[string]Chapter
-// 	byteValue, err := readJsonFromFile("story.json")
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	json.Unmarshal([]byte(byteValue), &result)
-
-// 	return result, nil
-// }
-
-// func readJsonFromFile(filename string) ([]byte, error) {
-// 	jsonFile, err := os.Open(filename)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	defer jsonFile.Close()
-
-// 	byteValue, _ := ioutil.ReadAll(jsonFile)
-// 	return byteValue, nil
-// }
+func JsonStory(f io.Reader) (Story, error) {
+	var story Story
+	d := json.NewDecoder(f)
+	if err := d.Decode(&story); err != nil {
+		return nil, err
+	}
+	return story, nil
+}
