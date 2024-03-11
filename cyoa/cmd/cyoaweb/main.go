@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gophercises/cyoa"
+	"github.com/utkarsh079/gophercises/cyoa"
 )
 
 func main() {
