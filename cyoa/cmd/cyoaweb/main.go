@@ -17,7 +17,7 @@ func main() {
 	}
 	defer f.Close()
 
-	story := cyoa.JsonStory(f)
+	story, err := cyoa.JsonStory(f)
 	if err != nil {
 		panic(err)
 	}
