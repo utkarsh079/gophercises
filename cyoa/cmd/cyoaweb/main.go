@@ -3,12 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
+	"net/http"
 	"os"
 
-	"github.com/utkarsh079/gophercises/cyoa"
+	"cyoa"
 )
 
 func main() {
+	port := flag.Int("port", 3030, "port to run the cyo on")
 	filename := flag.String("filename", "gopher.json", "name of the file that contains stories")
 	flag.Parse()
 	f, err := os.Open(*filename)
@@ -21,5 +24,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%+v\n", story)
+
+	h := cyoa.NewHandler(story)
+	fmt.Printf("starting a server on port: %d\n", *port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), h))
 }

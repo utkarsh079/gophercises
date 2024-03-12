@@ -1,3 +1,3 @@
-module github.com/utkarsh079/gophercises/cyoa
+module cyoa
 
 go 1.20
